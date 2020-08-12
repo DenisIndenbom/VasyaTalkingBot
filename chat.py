@@ -7,8 +7,7 @@ model = rnn.Model( 'idx2char.npy', 'ckpt_30' )
 token = "secret"
 def writeMessage(user,question,answer):
     writeLog(f'{user}: {question}\nВася: {answer}')
-    with open( "fit.txt", "at", encoding="utf-8-sig" ) as bd:
-        bd.write( f'> {question}\n< {answer}\n')
+    
 
 def writeLog(text):
     with open("log.txt", "at", encoding="utf-8-sig") as bd:
@@ -16,7 +15,7 @@ def writeLog(text):
 
     print(text)
 # Обходим блокировку с помощью прокси
-telebot.apihelper.proxy = {'https': ''}
+telebot.apihelper.proxy = {'https': 'proxy'}
 # подключаемся к телеграму
 bot = telebot.TeleBot(token=token)
 @bot.message_handler(commands=['start'])
