@@ -138,17 +138,17 @@ def generate_text( model, start_string, oneString, temperature ):
     return (start_string + ''.join( text_generated ))
 
 
-print(generate_text(model, "< Как дела?\n>", True, 1))
-print(generate_text(model, "< Как дела?\n>", True, 0.9))
-print(generate_text(model, "< Как дела?\n>", True, 0.8))
-print(generate_text(model, "< Как дела?\n>", True, 0.6))
-print(generate_text(model, "< Как дела?\n>", True, 0.7))
-print(generate_text(model, "< Как дела?\n>", True, 0.5))
-print(generate_text(model, "< Как дела?\n>", True, 0.4))
-print(generate_text(model, "< Как дела?\n>", True, 0.3))
-print(generate_text(model, "< Как дела?\n>", True, 0.2))
-print(generate_text(model, "< Как дела?\n>", True, 0.1))
-print(generate_text(model, "< Как дела?\n>", True, 0.01))
+print(generate_text(model, "< Как дела?\n> ", True, 1))
+print(generate_text(model, "< Как дела?\n> ", True, 0.9))
+print(generate_text(model, "< Как дела?\n> ", True, 0.8))
+print(generate_text(model, "< Как дела?\n> ", True, 0.6))
+print(generate_text(model, "< Как дела?\n> ", True, 0.7))
+print(generate_text(model, "< Как дела?\n> ", True, 0.5))
+print(generate_text(model, "< Как дела?\n> ", True, 0.4))
+print(generate_text(model, "< Как дела?\n> ", True, 0.3))
+print(generate_text(model, "< Как дела?\n> ", True, 0.2))
+print(generate_text(model, "< Как дела?\n> ", True, 0.1))
+print(generate_text(model, "< Как дела?\n> ", True, 0.01))
 
 
 dialog = u"===\n"
