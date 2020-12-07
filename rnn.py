@@ -10,7 +10,7 @@ import time
 
 import functools
 
-text = open( '/content/drive/My Drive/Colab Notebooks/VasyaRnn/DataSet2.0.txt', 'rb' ).read().decode( encoding='utf-8' )
+text = open( '/DataSet.txt', 'rb' ).read().decode( encoding='utf-8' )
 print( 'Общее количество символов: {}'.format( len( text ) ) )
 
 # Составляем словарь символов
