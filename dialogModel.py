@@ -58,4 +58,4 @@ class Model:
 if __name__ == '__main__':
     model = Model( 'idx2char.npy', 'ckpt_30' )
     while True:
-        print( model.generate_text( f'>{input()}\n<', True, 0.8) )
+        print( model.generate_text( f'< {input()}\n> ', True, 0.15) )
