@@ -10,7 +10,7 @@ import time
 
 import functools
 
-text = open( 'myMessages.txt', 'rb' ).read().decode( encoding='utf-8' )
+text = open( '/content/drive/My Drive/Colab Notebooks/VasyaRnn/DataSet2.0.txt', 'rb' ).read().decode( encoding='utf-8' )
 print( 'Общее количество символов: {}'.format( len( text ) ) )
 
 # Составляем словарь символов
@@ -42,8 +42,9 @@ for input_example, target_example in dataset.take( 1 ):
 BATCH_SIZE = 64
 steps_per_epoch = examples_per_epoch // BATCH_SIZE
 
-SHUFFLE_BUFFER_SIZE = 1392231
-# SHUFFLE_BUFFER_SIZE = 4375
+# SHUFFLE_BUFFER_SIZE = 1392231
+SHUFFLE_BUFFER_SIZE = 4375
+
 dataset = dataset.shuffle( SHUFFLE_BUFFER_SIZE ).batch( BATCH_SIZE, drop_remainder=True )
 
 # Размер используемого словаря
@@ -90,7 +91,7 @@ def loss( labels, logits ):
     return tf.keras.losses.sparse_categorical_crossentropy( labels, logits, from_logits=True )
 
 
-checkpoint_dir = 'training_checkpoints'
+checkpoint_dir = '/content/drive/My Drive/Colab Notebooks/training_checkpoints'
 np.save( os.path.join( checkpoint_dir, 'idx2char.npy' ), idx2char )
 checkpoint_prefix = os.path.join( checkpoint_dir, "ckpt_{epoch}" )
 
@@ -100,7 +101,7 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 model.compile(
     optimizer=tf.optimizers.Adam(),
     loss=loss )
-history = model.fit( dataset.repeat(), epochs=30, steps_per_epoch=steps_per_epoch, callbacks=[checkpoint_callback] )
+history = model.fit( dataset.repeat(), epochs=35, steps_per_epoch=steps_per_epoch, callbacks=[checkpoint_callback] )
 
 tf.train.latest_checkpoint( checkpoint_dir )
 model = build_model( vocab_size, embedding_dim, rnn_units, batch_size=1 )
@@ -137,24 +138,25 @@ def generate_text( model, start_string, oneString, temperature ):
     return (start_string + ''.join( text_generated ))
 
 
-print( generate_text( model, "< Как дела?\n>", True, 1 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.9 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.8 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.6 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.7 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.5 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.4 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.3 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.2 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.1 ) )
-print( generate_text( model, "< Как дела?\n>", True, 0.01 ) )
+print(generate_text(model, "< Как дела?\n>", True, 1))
+print(generate_text(model, "< Как дела?\n>", True, 0.9))
+print(generate_text(model, "< Как дела?\n>", True, 0.8))
+print(generate_text(model, "< Как дела?\n>", True, 0.6))
+print(generate_text(model, "< Как дела?\n>", True, 0.7))
+print(generate_text(model, "< Как дела?\n>", True, 0.5))
+print(generate_text(model, "< Как дела?\n>", True, 0.4))
+print(generate_text(model, "< Как дела?\n>", True, 0.3))
+print(generate_text(model, "< Как дела?\n>", True, 0.2))
+print(generate_text(model, "< Как дела?\n>", True, 0.1))
+print(generate_text(model, "< Как дела?\n>", True, 0.01))
+
 
 dialog = u"===\n"
-while True:
+while (True):
     rq = input( "< " )
     if rq == '':
-        break
-    dialog += "< " + rq + "\n> "
+        break;
+    dialog += f"< {rq}\n> "
 
     fullAns = generate_text( model, start_string=dialog, temperature=0.1, oneString=True )
     shortAns = fullAns[len( dialog ):]
