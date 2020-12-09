@@ -91,7 +91,7 @@ def loss( labels, logits ):
     return tf.keras.losses.sparse_categorical_crossentropy( labels, logits, from_logits=True )
 
 
-checkpoint_dir = '/content/drive/My Drive/Colab Notebooks/training_checkpoints'
+checkpoint_dir = 'training_checkpoints'
 np.save( os.path.join( checkpoint_dir, 'idx2char.npy' ), idx2char )
 checkpoint_prefix = os.path.join( checkpoint_dir, "ckpt_{epoch}" )
 
