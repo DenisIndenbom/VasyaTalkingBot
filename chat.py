@@ -6,7 +6,7 @@ import keepAwake
 keepAwake.enable()
 
 
-model = rnn.Model( 'idx2char.npy', 'ckpt_35' )
+model = rnn.Model( 'path', 'path5' )
 token = "secret"
 def writeMessage(user,question,answer):
     writeLog(f'{user}: {question}\nВася: {answer}')
@@ -18,7 +18,7 @@ def writeLog(text):
 
     print(text)
 # Обходим блокировку с помощью прокси
-telebot.apihelper.proxy = {'https': 'socks5h://geek:socks@t.geekclass.ru:7777'}
+telebot.apihelper.proxy = {'https': 'your proxy'}
 # подключаемся к телеграму
 bot = telebot.TeleBot(token=token)
 
@@ -44,14 +44,14 @@ def send_help(message: Message):
 def ver(message: Message):
     bot.send_message( message.chat.id,"Версия бота 1.6;\nРазмер датасета 330573 сообщений;\nКол-во параметров нейронной сети 6,520,290;")
 @bot.message_handler(commands=['news'])
-def ver(message: Message):
+def news(message: Message):
     bot.send_message( message.chat.id,"Обновление 1.6!\n"
                                       "\nЧто нового:"
-                                      "\n - датасет увеличен в 6 раз => Вася отвечает корректнее \n   и осмысленнее.(Датасет - это начём учится нейроная сеть)"
+                                      "\n- датасет увеличен в 6 раз => Вася отвечает корректнее \n и осмысленнее.(Датасет - это начём учится нейроная сеть)"
                                       "\n"
                                       "\nВывод:"
-                                      "\n В этом обновление Вася отвечает корректнее и осмысленнее."
-                                      "\n То-есть лучше составляет предложения по контексту вопроса.")
+                                      "\nВ этом обновление Вася отвечает корректнее и осмысленнее."
+                                      "\nТо-есть лучше составляет предложения по контексту вопроса.")
 @bot.message_handler(commands=['description'])
 def send_description(message: Message):
     bot.send_message(message.chat.id,'Вася - говорящий бот.'
@@ -60,20 +60,21 @@ def send_description(message: Message):
                                      '\n'
                                      '\nБот использует RNN(рекуррентная нейронная сеть) для генерации текста.'
                                      '\n'
-                                     '\nНа данный момент бот обучается говорить лучше.'
+                                     '\nНа данный момент бот обучается говорить лучше. '
                                      'Может через некоторое время он станет намного лучше чем сейчас.')
 
 @bot.message_handler(commands=['start'])
 def start(message: Message):
     user: User = message.from_user
     bot.send_message(message.chat.id,
-                     'Привет!\U0001F91A. Я говорящий чат бот \U0001F916. Я использую нейронные сети для генерации текста'
+                     'Привет👋, я говорящий бот Вася🤖. Я люблю поболтать. Использую нейронные сети для генерации текста.'
+                     'Я буду отвечать тебе на сообщение (просто напиши мне сообщение).'
                      '\nПомощь:/help'
                      '\nСсылка на gitHub: https://github.com/DenisIndenbom/VasyaTalkingBot')
     writeLog(f"{user.first_name}: {message.text}")
 
 @bot.message_handler(content_types=['text'])
-def talk(message: Message):
+def talk(message: Message): 
     answer = ""
     global model
     user: User = message.from_user
@@ -90,7 +91,6 @@ def talk(message: Message):
                 bot.send_message( message.chat.id, 'В вашем сообщении не понятные для меня символы!' )
             except:
                     print( "error:message didn't send" )
-
         try:
             bot.send_message( message.chat.id,answer)
         except:
@@ -104,4 +104,10 @@ def talk(message: Message):
                         break
                     except:
                         pass
+@bot.message_handler(content_types=['sticker'])
+def send_wow_its_sticker(message: Message):
+    bot.send_message( message.chat.id, 'Вау это стикер. Правда я их не понимаю. Пиши пожалуйста текстом' )
+@bot.message_handler(content_types=['photo'])
+def send_wow_its_sticker(message: Message):
+    bot.send_message( message.chat.id, 'Вау это картинка. Правда я их не понимаю. Пиши пожалуйста текстом' )
 bot.polling(none_stop=True,timeout=100)
