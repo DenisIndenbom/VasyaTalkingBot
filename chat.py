@@ -1,12 +1,12 @@
 import telebot
 from telebot.types import Message, User
 import dialogModel as rnn
-import datetime
 import keepAwake
 keepAwake.enable()
 
 
-model = rnn.Model( 'path', 'path5' )
+model = rnn.ModelBySymbols('idx2char.npy', 'ckpt_46')
+
 token = "secret"
 def writeMessage(user,question,answer):
     writeLog(f'{user}: {question}\nВася: {answer}')
@@ -18,7 +18,7 @@ def writeLog(text):
 
     print(text)
 # Обходим блокировку с помощью прокси
-telebot.apihelper.proxy = {'https': 'your proxy'}
+telebot.apihelper.proxy = {'https': ''}
 # подключаемся к телеграму
 bot = telebot.TeleBot(token=token)
 
@@ -83,7 +83,7 @@ def talk(message: Message):
         bot.send_message( message.chat.id, 'Не понял' )
     else:
         try:
-            answer = model.generate_text( f'< {text}\n> ', True, 0.15)
+            answer = model.generate_text( f'< {text}\n> ', True, 0.1)
             answer = answer.rstrip( '\n\r' )
             writeMessage( user.first_name, text, answer )
         except:
