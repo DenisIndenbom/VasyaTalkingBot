@@ -10,7 +10,8 @@ import time
 
 import functools
 
-text = open( '/DataSet.txt', 'rb' ).read().decode( encoding='utf-8' )
+with open( '/content/drive/My Drive/Colab Notebooks/VasyaRnn/DataSet2.0.txt', 'rt', encoding="utf-8" ) as file:
+    text = file.read()
 print( 'Общее количество символов: {}'.format( len( text ) ) )
 
 # Составляем словарь символов
@@ -22,40 +23,47 @@ char2idx = { u: i for i, u in enumerate( vocab ) }
 idx2char = np.array( vocab )
 text_as_int = np.array( [char2idx[c] for c in text] )
 # Подгатавливаем обучающий датасет
-seq_length = 100
-examples_per_epoch = len( text ) // seq_length
+seq_length = 512
+examples_per_epoch = (len( text ) - 1) // seq_length
 char_dataset = tf.data.Dataset.from_tensor_slices( text_as_int )
 
-sequences = char_dataset.batch( seq_length + 1, drop_remainder=True )
+# sequences = char_dataset.batch( seq_length + 1, drop_remainder=True )
 
 
-def split_input_target( chunk ):
-    input_text = chunk[:-1]
-    target_text = chunk[1:]
-    return input_text, target_text
+# def split_input_target( chunk ):
+#     input_text = chunk[:-1]
+#     target_text = chunk[1:]
+#     return input_text, target_text
 
 
-dataset = sequences.map( split_input_target )
+# dataset = sequences.map( split_input_target )
+
+dataset = tf.data.Dataset.zip( (char_dataset, char_dataset.skip( 1 )) )
+dataset = dataset.batch( seq_length, drop_remainder=True )
+
 for input_example, target_example in dataset.take( 1 ):
     print( 'Вход:  ', repr( ''.join( idx2char[input_example.numpy()] ) ) )
     print( 'Выход:', repr( ''.join( idx2char[target_example.numpy()] ) ) )
 BATCH_SIZE = 64
 steps_per_epoch = examples_per_epoch // BATCH_SIZE
 
-# SHUFFLE_BUFFER_SIZE = 1392231
-SHUFFLE_BUFFER_SIZE = 4375
+SHUFFLE_BUFFER_SIZE = 1024 * 1024
+# SHUFFLE_BUFFER_SIZE = 100
 
-dataset = dataset.shuffle( SHUFFLE_BUFFER_SIZE ).batch( BATCH_SIZE, drop_remainder=True )
+dataset = dataset.shuffle( SHUFFLE_BUFFER_SIZE, reshuffle_each_iteration=True ).batch( BATCH_SIZE,
+                                                                                       drop_remainder=True ).prefetch(
+    32 )
 
 # Размер используемого словаря
 vocab_size = len( vocab )
 # Размерности сети
 embedding_dim = 256
-rnn_units = 1024
+rnn_units = 1024 // 2
 
 # Здесь можно попробовать различные варианты архитектуры сети. На текущий момент лучший вариант у LSTM.
 
-rnn = functools.partial( tf.keras.layers.LSTM, recurrent_activation='sigmoid' )
+# rnn = functools.partial(tf.keras.layers.LSTM, recurrent_activation='sigmoid')
+rnn = tf.compat.v1.keras.layers.LSTM
 
 
 # rnn = tf.compat.v1.keras.layers.CuDNNLSTM
@@ -72,8 +80,12 @@ def build_model( vocab_size, embedding_dim, rnn_units, batch_size ):
                                    batch_input_shape=[batch_size, None] ),
         rnn( rnn_units,
              return_sequences=True,
-             recurrent_initializer='glorot_uniform',
-             stateful=True ),
+             # recurrent_initializer='glorot_uniform',
+             stateful=False ),
+        # rnn( rnn_units,
+        #      return_sequences=True,
+        #      # recurrent_initializer='glorot_uniform',
+        #      stateful=False ),
         tf.keras.layers.Dense( vocab_size )
     ] )
 
@@ -91,7 +103,7 @@ def loss( labels, logits ):
     return tf.keras.losses.sparse_categorical_crossentropy( labels, logits, from_logits=True )
 
 
-checkpoint_dir = 'training_checkpoints'
+checkpoint_dir = '/content/drive/My Drive/Colab Notebooks/training_checkpoints'
 np.save( os.path.join( checkpoint_dir, 'idx2char.npy' ), idx2char )
 checkpoint_prefix = os.path.join( checkpoint_dir, "ckpt_{epoch}" )
 
@@ -100,8 +112,8 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     save_weights_only=True )
 model.compile(
     optimizer=tf.optimizers.Adam(),
-    loss=loss )
-history = model.fit( dataset.repeat(), epochs=35, steps_per_epoch=steps_per_epoch, callbacks=[checkpoint_callback] )
+    loss=loss, metrics='acc' )
+history = model.fit( dataset.repeat(), epochs=45, steps_per_epoch=steps_per_epoch, callbacks=[checkpoint_callback] )
 
 tf.train.latest_checkpoint( checkpoint_dir )
 model = build_model( vocab_size, embedding_dim, rnn_units, batch_size=1 )
@@ -138,17 +150,17 @@ def generate_text( model, start_string, oneString, temperature ):
     return (start_string + ''.join( text_generated ))
 
 
-print(generate_text(model, "< Как дела?\n> ", True, 1))
-print(generate_text(model, "< Как дела?\n> ", True, 0.9))
-print(generate_text(model, "< Как дела?\n> ", True, 0.8))
-print(generate_text(model, "< Как дела?\n> ", True, 0.6))
-print(generate_text(model, "< Как дела?\n> ", True, 0.7))
-print(generate_text(model, "< Как дела?\n> ", True, 0.5))
-print(generate_text(model, "< Как дела?\n> ", True, 0.4))
-print(generate_text(model, "< Как дела?\n> ", True, 0.3))
-print(generate_text(model, "< Как дела?\n> ", True, 0.2))
-print(generate_text(model, "< Как дела?\n> ", True, 0.1))
-print(generate_text(model, "< Как дела?\n> ", True, 0.01))
+# print(generate_text(model, "< Как дела?\n>", True, 1))
+# print(generate_text(model, "< Как дела?\n>", True, 0.9))
+# print(generate_text(model, "< Как дела?\n>", True, 0.8))
+# print(generate_text(model, "< Как дела?\n>", True, 0.6))
+# print(generate_text(model, "< Как дела?\n>", True, 0.7))
+# print(generate_text(model, "< Как дела?\n>", True, 0.5))
+# print(generate_text(model, "< Как дела?\n>", True, 0.4))
+# print(generate_text(model, "< Как дела?\n>", True, 0.3))
+# print(generate_text(model, "< Как дела?\n>", True, 0.2))
+# print(generate_text(model, "< Как дела?\n>", True, 0.1))
+# print(generate_text(model, "< Как дела?\n>", True, 0.01))
 
 
 dialog = u"===\n"
@@ -158,7 +170,7 @@ while (True):
         break;
     dialog += f"< {rq}\n> "
 
-    fullAns = generate_text( model, start_string=dialog, temperature=0.1, oneString=True )
+    fullAns = generate_text( model, start_string=dialog, temperature=0.0, oneString=True )
     shortAns = fullAns[len( dialog ):]
     print( "< " + shortAns )
     dialog = fullAns
