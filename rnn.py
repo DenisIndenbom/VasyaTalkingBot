@@ -58,7 +58,7 @@ dataset = dataset.shuffle( SHUFFLE_BUFFER_SIZE, reshuffle_each_iteration=True ).
 vocab_size = len( vocab )
 # Размерности сети
 embedding_dim = 256
-rnn_units = 1024 // 2
+rnn_units = 1024
 
 # Здесь можно попробовать различные варианты архитектуры сети. На текущий момент лучший вариант у LSTM.
 
